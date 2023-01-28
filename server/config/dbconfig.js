@@ -1,17 +1,12 @@
 import mongoose from "mongoose";
+import { MongoMemoryServer } from "mongodb-memory-server";
 
 const dbSetup = async () => {
-  try {
-    const DBURL = process.env.DB_URL;
-    mongoose.set("strictQuery", false);
-    mongoose.connect(DBURL, {
-      useNewUrlParser: true,
-      ssl: true,
-      sslValidate: false,
-    });
-  } catch (err) {
-    console.log("Databse Connection Error : " + err.message);
-  }
+  const mongod = await MongoMemoryServer.create();
+  const getUri = mongod.getUri();
+  mongoose.set("strictQuery", true);
+  const db = await mongoose.connect(getUri);
+  return db;
 };
 
 export default dbSetup;

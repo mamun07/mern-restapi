@@ -1,7 +1,7 @@
 import express from "express";
 import dotend from "dotenv";
-import bodyParser from "body-parser";
 import cors from "cors";
+import morgan from "morgan";
 
 // Importing support file
 import dbSetup from "./config/dbconfig.js";
@@ -12,16 +12,26 @@ dotend.config();
 const app = express();
 const PORT = process.env.SERVER_PORT || 5001;
 
-// Configraing
-app.use(bodyParser.json({ limit: "30mb", extended: true }));
-app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
+// Middlewares
+app.use(express.json());
 app.use(cors());
+app.use(morgan("tiny"));
+app.disable("x-powered-by");
 
-// Declering Rest API Routing
+// Declering Rest API HTTP request
 app.use("/api", Routers);
 
-// Rest API Server listener...
-app.listen(PORT, () => {
-  dbSetup();
-  console.log(`Surver running on port ${PORT}`);
-});
+// Start Rest API Server listener...
+dbSetup()
+  .then(() => {
+    try {
+      app.listen(PORT, () => {
+        console.log(`Server connect to the http://localhost:${PORT}/api `);
+      });
+    } catch (err) {
+      console.log("Cannot connect to the server");
+    }
+  })
+  .catch((err) => {
+    console.log("Invalid database connection...!");
+  });
