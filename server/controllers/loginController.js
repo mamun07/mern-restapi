@@ -37,12 +37,12 @@ export const registerUser = async (req, res) => {
               // return save result as a responce
               user
                 .save()
-                .then(() => {})
-                .catch((err) => {
-                  return res
-                    .status(500)
-                    .send({ err: "Enable to hashed password" });
-                });
+                .then((result) =>
+                  res.status(200).send({ msg: "User Register Successfully!" })
+                )
+                .catch((err) =>
+                  res.status(500).send({ err: "Enable to hashed password" })
+                );
             })
             .catch((err) => {
               return res.status(500).send({ err: "Enable to hashed password" });
