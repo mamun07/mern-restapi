@@ -1,12 +1,6 @@
 import mongoose from "mongoose";
-import { MongoMemoryServer } from "mongodb-memory-server";
 
-const dbSetup = async () => {
-  const mongod = await MongoMemoryServer.create();
-  const getUri = mongod.getUri();
+export default async function dbSetup() {
   mongoose.set("strictQuery", true);
-  const db = await mongoose.connect(getUri);
-  return db;
-};
-
-export default dbSetup;
+  mongoose.connect(process.env.DB_URL);
+}

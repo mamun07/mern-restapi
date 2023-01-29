@@ -5,14 +5,14 @@ const router = express.Router();
 
 // API Home Routing
 router.get("/", (req, res) => {
-  res.send("Welcome to MERN restfull API");
+  res.send("Welcome to MERN Restfull API");
 });
 
 // POST Routing
 router.route("/register").post(controller.registerUser); // Register User
 // router.route("/registerMail").post(); // Send the email
 router.route("/authenticate").post((req, res) => res.end()); // Authenticate User
-router.route("/login").post(controller.loginUser); // Login in app
+router.route("/login").post(controller.verifyUser, controller.loginUser); // Login in app
 
 // GET Routing
 router.route("/user/:username").get(controller.getUser); // user with username

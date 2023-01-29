@@ -19,14 +19,14 @@ app.use(morgan("tiny"));
 app.disable("x-powered-by");
 
 // Declering Rest API HTTP request
-app.use("/api", Routers);
+app.use("/", Routers);
 
 // Start Rest API Server listener...
 dbSetup()
   .then(() => {
     try {
       app.listen(PORT, () => {
-        console.log(`Server connect to the http://localhost:${PORT}/api `);
+        console.log(`Server connect to the http://localhost:${PORT}/`);
       });
     } catch (err) {
       console.log("Cannot connect to the server");

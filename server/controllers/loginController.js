@@ -1,6 +1,21 @@
 import userModal from "../models/userModal.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
+// midleware for verify user
+export const verifyUser = async (req, res, next) => {
+  try {
+    const { username } = req.method == "GET" ? req.query : req.body;
+    // check the user existance
+    let exist = await userModal.findOne({ username });
+    if (!exist) return res.status(404).send({ error: "Can't Find User!" });
+    next();
+  } catch (error) {
+    return res.status(404).send({ error: "Opps! Authentication Error." });
+  }
+};
+
+// POST: http://localhost:8080/register
 export const registerUser = async (req, res) => {
   try {
     const { username, password, profile, email } = req.body;
@@ -57,12 +72,60 @@ export const registerUser = async (req, res) => {
   }
 };
 
+// POST: http://localhost:8080/login
 export const loginUser = async (req, res) => {
-  res.status(200).json({ msg: "Login user success" });
+  const { username, password } = req.body;
+  try {
+    userModal
+      .findOne({ username })
+      .then((user) => {
+        bcrypt
+          .compare(password, user.password)
+          .then((password) => {
+            if (!password)
+              return res.status(400).send({ error: "Don't have Password" });
+            const token = jwt.sign(
+              {
+                userId: user._id,
+                username: user.username,
+              },
+              process.env.JWT_SECRET,
+              { expiresIn: "24" }
+            );
+            return res.status(200).send({
+              msg: "Login Success...!",
+              username: user.username,
+              token,
+            });
+          })
+          .catch((error) => {
+            return res.status(400).send({ error: "Password dose not match" });
+          });
+      })
+      .catch((error) => {
+        return res.status(404).send({ error: "User not Found!" });
+      });
+  } catch (error) {
+    return res.status(500).send({ error });
+  }
 };
 
+// GET: http://localhost:8080/user/username
 export const getUser = async (req, res) => {
-  res.status(200).json({ msg: "Get user success" });
+  const { username } = req.params;
+  try {
+    if (!username) return res.status(501).send({ error: "Invalid Username" });
+    userModal.findOne({ username }, (err, user) => {
+      if (err) return res.status(500).send({ err });
+      if (!user)
+        return res.status(501).send({ error: "Could not find the user" });
+
+      const { password, ...rest } = Object.assign({}, user.toJSON());
+      return res.status(201).send(rest);
+    });
+  } catch (error) {
+    return res.status(404).send({ error: "Can not find user data" });
+  }
 };
 
 export const updateUser = async (req, res) => {
