@@ -128,8 +128,23 @@ export const getUser = async (req, res) => {
   }
 };
 
+// PUT: http://localhost:8080/user/updateUser
 export const updateUser = async (req, res) => {
-  res.status(200).json({ msg: "Put user success" });
+  try {
+    const id = req.query.id;
+    if (id) {
+      const body = req.body;
+      // Update the data
+      userModal.updateOne({ _id: id }, body, (err, data) => {
+        if (err) throw err;
+        return res.status(201).send({ msg: "Recored updated...!" });
+      });
+    } else {
+      return res.status(401).send({ error: "User not found....!" });
+    }
+  } catch (error) {
+    return res.status(401).send({ error });
+  }
 };
 
 export const generateOTP = async (req, res) => {
